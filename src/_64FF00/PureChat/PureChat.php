@@ -51,7 +51,7 @@ class PureChat extends PluginBase
 
         $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML);
 
-        if(!$this->config->get("version"))
+        if((!$this->config->get("version")) || ($this->config->get("version") != "1.4.0.3"))
         {
             $version = $this->getDescription()->getVersion();
 
@@ -82,9 +82,9 @@ class PureChat extends PluginBase
         {
             case "setformat":
 
-                if(count($args) < 3)
+                if(count($args) < 2)
                 {
-                    $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " Usage: /setformat <group> <world> <format>");
+                    $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " Usage: /setformat <group> [<world>|global] <format>");
 
                     return true;
                 }
@@ -99,26 +99,64 @@ class PureChat extends PluginBase
                 }
 
                 $levelName = null;
-
+                $formatStart = 2;
+                
                 if($args[1] !== "null" and $args[1] !== "global")
                 {
                     /** @var \pocketmine\level\Level $level */
                     $level = $this->getServer()->getLevelByName($args[1]);
 
                     if ($level === null) {
-                        $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Invalid World Name!");
-
-                        return true;
+                        $formatStart = 1;
                     }
-
-                    $levelName = $level->getName();
+                    else
+                    {
+                    		$levelName = $level->getName();
+                    }
                 }
 
-                $chatFormat = implode(" ", array_slice($args, 2));
+                $chatFormat = implode(" ", array_slice($args, $formatStart));
 
                 $this->setOriginalChatFormat($group, $chatFormat, $levelName);
 
-                $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " You set the chat format of the group to " . $chatFormat . ".");
+                $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " You set the chat format of the group " . $args[0] . " to:\n" . TextFormat::WHITE . $chatFormat);
+
+                break;
+
+            case "getformat":
+
+                if(count($args) < 1)
+                {
+                    $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " Usage: /getformat <group> [<world>|global]");
+
+                    return true;
+                }
+
+                $group = $this->purePerms->getGroup($args[0]);
+
+                if($group === null)
+                {
+                    $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Group " . $args[0] . "does NOT exist.");
+
+                    return true;
+                }
+
+                $levelName = null;
+                
+                if(isset($args[1]) and ($args[1] !== "null" and $args[1] !== "global"))
+                {
+                    /** @var \pocketmine\level\Level $level */
+                    $level = $this->getServer()->getLevelByName($args[1]);
+
+                    if ($level !== null)
+                    {
+                    		$levelName = $level->getName();
+                    }
+                }
+
+                $chatFormat = $this->getOriginalChatFormat($group, $levelName);
+
+                $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " The chat format of the group " . $args[0] . " is:\n" . TextFormat::WHITE . $chatFormat);
 
                 break;
 
@@ -126,7 +164,7 @@ class PureChat extends PluginBase
 
                 if(count($args) < 3)
                 {
-                    $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " Usage: /setnametag <group> <world> <format>");
+                    $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " Usage: /setnametag <group> [<world>|global] <format>");
 
                     return true;
                 }
@@ -141,29 +179,66 @@ class PureChat extends PluginBase
                 }
 
                 $levelName = null;
-
+								$formatStart = 2;
+								
                 if($args[1] !== "null" and $args[1] !== "global")
                 {
                     /** @var \pocketmine\level\Level $level */
                     $level = $this->getServer()->getLevelByName($args[1]);
 
                     if ($level === null) {
-                        $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Invalid World Name!");
-
-                        return true;
+                        $formatStart = 1;
                     }
-
-                    $levelName = $level->getName();
+                    else
+                    {
+                    		$levelName = $level->getName();
+                    }
                 }
 
-                $nameTag = implode(" ", array_slice($args, 2));
+                $nameTag = implode(" ", array_slice($args, $formatStart));
 
                 $this->setOriginalNametag($group, $nameTag, $levelName);
 
-                $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " You set the nametag of the group to " . $nameTag . ".");
+                $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " You set the nametag of the group " . $args[0] . " to:\n" . TextFormat::WHITE . $nameTag);
 
                 break;
 
+            case "getnametag":
+
+                if(count($args) < 1)
+                {
+                    $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " Usage: /getnametag <group> [<world>|global]");
+
+                    return true;
+                }
+
+                $group = $this->purePerms->getGroup($args[0]);
+
+                if($group === null)
+                {
+                    $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Group " . $args[0] . "does NOT exist.");
+
+                    return true;
+                }
+
+                $levelName = null;
+                
+                if(isset($args[1]) and ($args[1] !== "null" and $args[1] !== "global"))
+                {
+                    /** @var \pocketmine\level\Level $level */
+                    $level = $this->getServer()->getLevelByName($args[1]);
+
+                    if ($level !== null)
+                    {
+                    		$levelName = $level->getName();
+                    }
+                }
+
+                $nameTag = $this->getOriginalNametag($group, $levelName);
+
+                $sender->sendMessage(TextFormat::GREEN . self::MAIN_PREFIX . " The name tag of the group " . $args[0] . " is:\n" . TextFormat::WHITE . $nameTag);
+
+                break;
 
             case "setprefix":
 
@@ -252,12 +327,20 @@ class PureChat extends PluginBase
 
                     unset($tempGroupData["default-chat"]);
                 }
+                else
+                {
+                    $tempGroupData["chat"] = $this->fixOldData($tempGroupData["chat"]);
+                }
 
                 if(isset($tempGroupData["default-nametag"]))
                 {
                     $tempGroupData["nametag"] = $this->fixOldData($tempGroupData["default-nametag"]);
 
                     unset($tempGroupData["default-nametag"]);
+                }
+                else
+                {
+                    $tempGroupData["nametag"] = $this->fixOldData($tempGroupData["nametag"]);
                 }
 
                 if(isset($tempGroupData["worlds"]))
@@ -270,12 +353,20 @@ class PureChat extends PluginBase
 
                             unset($worldData["default-chat"]);
                         }
+                        else
+                        {
+                            $worldData["chat"] = $this->fixOldData($worldData["chat"]);
+                        }
 
                         if(isset($worldData["default-nametag"]))
                         {
                             $worldData["nametag"] = $this->fixOldData($worldData["default-nametag"]);
 
                             unset($worldData["default-nametag"]);
+                        }
+                        else
+                        {
+                            $worldData["nametag"] = $this->fixOldData($worldData["nametag"]);
                         }
 
                         $tempGroupData["worlds"][$worldName] = $worldData;
@@ -328,6 +419,13 @@ class PureChat extends PluginBase
         $string = str_replace("{faction}", "{fac_rank}{fac_name}", $string);
         $string = str_replace("{user_name}", "{display_name}", $string);
         $string = str_replace("{message}", "{msg}", $string);
+        
+        $string = str_replace("{FACTION_NAME}", "{fac_name}", $string);
+        $string = str_replace("{FACTION_RANK}", "{fac_rank}", $string);
+        $string = str_replace("{DISPLAY_NAME}", "{display_name}", $string);
+        $string = str_replace("{PREFIX}", "{prefix}", $string);
+        $string = str_replace("{SUFFIX}", "{suffix}", $string);
+        $string = str_replace("{MESSAGE}", "{msg}", $string);
 
         return $string;
     }
@@ -449,35 +547,35 @@ class PureChat extends PluginBase
     public function applyPCTags($string, Player $player, $message, $levelName)
     {
         // TODO
-        $string = str_replace("{display_name}", $player->getDisplayName(), $string);
+        $string = str_replace(array("{display_name}", "{DISPLAY_NAME}"), $player->getDisplayName(), $string);
 
         if($message === null)
             $message = "";
 
         if($player->hasPermission("pchat.coloredMessages"))
         {
-            $string = str_replace("{msg}", $this->applyColors($message), $string);
+            $string = str_replace(array("{msg}", "{MESSAGE}"), $this->applyColors($message), $string);
         }
         else
         {
-            $string = str_replace("{msg}", $this->stripColors($message), $string);
+            $string = str_replace(array("{msg}", "{MESSAGE}"), $this->stripColors($message), $string);
         }
 
         if($this->factionsAPI !== null)
         {
-            $string = str_replace("{fac_name}", $this->factionsAPI->getPlayerFaction($player), $string);
-            $string = str_replace("{fac_rank}", $this->factionsAPI->getPlayerRank($player), $string);
+            $string = str_replace(array("{fac_name}", "{FACTION_NAME}"), $this->factionsAPI->getPlayerFaction($player), $string);
+            $string = str_replace(array("{fac_rank}", "{FACTION_RANK}"), $this->factionsAPI->getPlayerRank($player), $string);
         }
         else
         {
-            $string = str_replace("{fac_name}", '', $string);
-            $string = str_replace("{fac_rank}", '', $string);
+            $string = str_replace(array("{fac_name}", "{FACTION_NAME}"), '', $string);
+            $string = str_replace(array("{fac_rank}", "{FACTION_RANK}"), '', $string);
         }
 
-        $string = str_replace("{world}", ($levelName === null ? "" : $levelName), $string);
+        $string = str_replace(array("{world}", "{WORLD}"), ($levelName === null ? "" : $levelName), $string);
 
-        $string = str_replace("{prefix}", $this->getPrefix($player, $levelName), $string);
-        $string = str_replace("{suffix}", $this->getSuffix($player, $levelName), $string);
+        $string = str_replace(array("{prefix}", "{PREFIX}"), $this->getPrefix($player, $levelName), $string);
+        $string = str_replace(array("{suffix}", "{SUFFIX}"), $this->getSuffix($player, $levelName), $string);
 
         return $string;
     }
@@ -490,7 +588,10 @@ class PureChat extends PluginBase
      */
     public function getChatFormat(Player $player, $message, $levelName = null)
     {
-        $originalChatFormat = $this->getOriginalChatFormat($player, $levelName);
+        /** @var \_64FF00\PurePerms\PPGroup $group */
+        $group = $this->purePerms->getUserDataMgr()->getGroup($player, $levelName);
+
+        $originalChatFormat = $this->getOriginalChatFormat($group, $levelName);
 
         $chatFormat = $this->applyColors($originalChatFormat);
         $chatFormat = $this->applyPCTags($chatFormat, $player, $message, $levelName);
@@ -505,7 +606,10 @@ class PureChat extends PluginBase
      */
     public function getNametag(Player $player, $levelName = null)
     {
-        $originalNametag = $this->getOriginalNametag($player, $levelName);
+        /** @var \_64FF00\PurePerms\PPGroup $group */
+        $group = $this->purePerms->getUserDataMgr()->getGroup($player, $levelName);
+
+        $originalNametag = $this->getOriginalNametag($group, $levelName);
 
         $nameTag = $this->applyColors($originalNametag);
         $nameTag = $this->applyPCTags($nameTag, $player, null, $levelName);
@@ -518,11 +622,8 @@ class PureChat extends PluginBase
      * @param null $levelName
      * @return mixed
      */
-    public function getOriginalChatFormat(Player $player, $levelName = null)
+    public function getOriginalChatFormat(PPGroup $group, $levelName = null)
     {
-        /** @var \_64FF00\PurePerms\PPGroup $group */
-        $group = $this->purePerms->getUserDataMgr()->getGroup($player, $levelName);
-
         if($levelName === null)
         {
             if($this->config->getNested("groups." . $group->getName() . ".chat") === null)
@@ -553,11 +654,8 @@ class PureChat extends PluginBase
         }
     }
 
-    public function getOriginalNametag(Player $player, $levelName = null)
+    public function getOriginalNametag(PPGroup $group, $levelName = null)
     {
-        /** @var \_64FF00\PurePerms\PPGroup $group */
-        $group = $this->purePerms->getUserDataMgr()->getGroup($player, $levelName);
-
         if($levelName === null)
         {
             if($this->config->getNested("groups." . $group->getName() . ".nametag") === null)

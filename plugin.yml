@@ -1,6 +1,6 @@
 name: PureChat
 main: _64FF00\PureChat\PureChat
-version: "1.4.0"
+version: "1.4.0.3"
 api: [1.13.0, 2.0.0]
 load: POSTWORLD
 author: 64FF00
@@ -11,15 +11,27 @@ commands:
   setformat:
       description: "Allows you to set default chat format of a PurePerms group"
       permission: pchat.command.setformat
+      usage: "/setformat <group> [<world>|global] <format>"
+  getformat:
+      description: "Allows you to get default chat format of a PurePerms group"
+      permission: pchat.command.getformat
+      usage: "/getformat <group> [<world>|global]"
   setnametag:
     description: "Allows you to set default nametag of a PurePerms group"
     permission: pchat.command.setnametag
+    usage: "/setnametag <group> [<world>|global] <format>"
+  getnametag:
+    description: "Allows you to get default nametag of a PurePerms group"
+    permission: pchat.command.getnametag
+    usage: "/getnametag <group> [<world>|global]"
   setprefix:
     description: "Allows you to set your PureChat prefix"
     permission: pchat.command.setprefix
+    usage: "/setprefix <prefix>"
   setsuffix:
     description: "Allows you to set your PureChat suffix"
-    permission: pchat.command.setsuffix	
+    permission: pchat.command.setsuffix
+    usage: "/setsuffix <suffix>"
 permissions:
   pchat:
     description: "PureChat by 64FF00! (Twitter: @64FF00)"
@@ -29,11 +41,15 @@ permissions:
         children:
           pchat.command.setformat:
             description: "Allows you to set default chat format of a PurePerms group"
+          pchat.command.getformat:
+            description: "Allows you to get default chat format of a PurePerms group"
           pchat.command.setnametag:
             description: "Allows you to set default nametag of a PurePerms group"
-          pchat.command.setprefix:		
+          pchat.command.getnametag:
+            description: "Allows you to get default nametag of a PurePerms group"
+          pchat.command.setprefix:
             description: "Allows you to set your PureChat prefix"
-          pchat.command.setsuffix:		
-            description: "Allows you to set your PureChat suffix"			
+          pchat.command.setsuffix:
+            description: "Allows you to set your PureChat suffix"
       pchat.coloredMessages:
-        description: "Allows you to use colors in chat"		
+        description: "Allows you to use colors in chat"
