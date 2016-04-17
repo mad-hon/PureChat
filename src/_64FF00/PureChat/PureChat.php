@@ -50,13 +50,12 @@ class PureChat extends PluginBase
         $this->saveDefaultConfig();
 
         $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML);
+        
+        $version = $this->getDescription()->getVersion();
 
-        if((!$this->config->get("version")) || ($this->config->get("version") != "1.4.0.3"))
+        if($this->config->get("version") != $version)
         {
-            $version = $this->getDescription()->getVersion();
-
             $this->config->set("version", $version);
-
             $this->fixOldConfig();
         }
 
@@ -93,7 +92,7 @@ class PureChat extends PluginBase
 
                 if($group === null)
                 {
-                    $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Group " . $args[0] . "does NOT exist.");
+                    $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Group " . $args[0] . " does NOT exist.");
 
                     return true;
                 }
@@ -136,7 +135,7 @@ class PureChat extends PluginBase
 
                 if($group === null)
                 {
-                    $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Group " . $args[0] . "does NOT exist.");
+                    $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Group " . $args[0] . " does NOT exist.");
 
                     return true;
                 }
@@ -173,7 +172,7 @@ class PureChat extends PluginBase
 
                 if($group === null)
                 {
-                    $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Group " . $args[0] . "does NOT exist.");
+                    $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Group " . $args[0] . " does NOT exist.");
 
                     return true;
                 }
@@ -216,7 +215,7 @@ class PureChat extends PluginBase
 
                 if($group === null)
                 {
-                    $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Group " . $args[0] . "does NOT exist.");
+                    $sender->sendMessage(TextFormat::RED . self::MAIN_PREFIX . " Group " . $args[0] . " does NOT exist.");
 
                     return true;
                 }
